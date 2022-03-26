@@ -1,0 +1,32 @@
+package com.company.customer.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.persistence.*;
+
+
+@Data
+@Builder
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+public class Customer {
+    @SequenceGenerator(
+            name = "customer_id_sequence",
+            sequenceName = "customer_id_sequence"
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "customer_id_sequence"
+    )
+    @Id
+    private Integer id;
+    private String firstName;
+    private String lastName;
+    private String email;
+
+}
