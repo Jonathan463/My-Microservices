@@ -7,7 +7,7 @@ spring:
     password: password
     url: jdbc:postgresql://localhost:5434/fraud
     username: amigoscode
-    jpa:
+  jpa:
       hibernate:
         ddl-auto: update
       properties:
