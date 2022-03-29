@@ -4,10 +4,22 @@ import com.company.customer.model.Customer;
 import com.company.customer.model.CustomerRegistrationRequest;
 import com.company.customer.repository.CustomerRepository;
 import com.company.customer.service.CustomerService;
+import com.company.customer.utility.FraudCheckResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
-public record CustomerServiceImpl(CustomerRepository customerRepository) implements CustomerService {
+public class CustomerServiceImpl implements CustomerService {
+
+    private final RestTemplate restTemplate;
+    private final CustomerRepository customerRepository;
+
+    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository) {
+        this.restTemplate = restTemplate;
+        this.customerRepository = customerRepository;
+    }
+
+
     @Override
     public Customer registerCustomer(CustomerRegistrationRequest request) {
         Customer customer = Customer.builder()
@@ -15,7 +27,18 @@ public record CustomerServiceImpl(CustomerRepository customerRepository) impleme
                 .lastName(request.lastName())
                 .email(request.email())
                 .build();
-            customerRepository.save(customer);
+        //todo: check if email not taken
+        customerRepository.saveAndFlush(customer);
+        //todo: check if fraudster
+        try {
+            FraudCheckResponse fraudCheckResponse = restTemplate.getForObject("http://localhost:8081/api/v1/fraud-check/{customerId}", FraudCheckResponse.class, customer.getId());
+
+            if(fraudCheckResponse.isFraudster()){
+                throw new IllegalStateException("fraudster");
+            }
+        } catch (Exception e){
+            System.err.println(e.getMessage());
+        }
         return customer;
     }
 }
