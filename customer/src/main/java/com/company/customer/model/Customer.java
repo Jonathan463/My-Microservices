@@ -25,7 +25,7 @@ public class Customer {
     )
     @Id
     private Integer id;
-    private String firstname;
+    private String firstName;
     private String lastName;
     private String email;
 
