@@ -1,10 +1,11 @@
 package com.company.customer.serviceImpl;
 
+import com.company.clients.fraud.FraudCheckResponse;
+import com.company.clients.fraud.FraudClient;
 import com.company.customer.model.Customer;
 import com.company.customer.model.CustomerRegistrationRequest;
 import com.company.customer.repository.CustomerRepository;
 import com.company.customer.service.CustomerService;
-import com.company.customer.utility.FraudCheckResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,10 +14,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final RestTemplate restTemplate;
     private final CustomerRepository customerRepository;
+    private final FraudClient fraudClient;
 
-    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository) {
+    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository, FraudClient fraudClient) {
         this.restTemplate = restTemplate;
         this.customerRepository = customerRepository;
+        this.fraudClient = fraudClient;
     }
 
 
@@ -30,15 +33,17 @@ public class CustomerServiceImpl implements CustomerService {
         //todo: check if email not taken
         customerRepository.saveAndFlush(customer);
         //todo: check if fraudster
-        try {
-            FraudCheckResponse fraudCheckResponse = restTemplate.getForObject("http://FRAUD/api/v1/fraud-check/{customerId}", FraudCheckResponse.class, customer.getId());
+//        try {
+//            FraudCheckResponse fraudCheckResponse = restTemplate.getForObject("http://FRAUD/api/v1/fraud-check/{customerId}", FraudCheckResponse.class, customer.getId());
+//
+//            if(fraudCheckResponse.isFraudster()){
+//                throw new IllegalStateException("fraudster");
+//            }
+//        } catch (Exception e){
+//            System.err.println(e.getMessage());
+//        }
 
-            if(fraudCheckResponse.isFraudster()){
-                throw new IllegalStateException("fraudster");
-            }
-        } catch (Exception e){
-            System.err.println(e.getMessage());
-        }
+        FraudCheckResponse fraudCheckResponse = fraudClient.isFraudster(customer.getId());
         return customer;
     }
 }
