@@ -2,6 +2,8 @@ package com.company.customer.serviceImpl;
 
 import com.company.clients.fraud.fraud.FraudCheckResponse;
 import com.company.clients.fraud.fraud.FraudClient;
+import com.company.clients.fraud.notification.NotificationClient;
+import com.company.clients.fraud.notification.NotificationRequest;
 import com.company.customer.model.Customer;
 import com.company.customer.model.CustomerRegistrationRequest;
 import com.company.customer.repository.CustomerRepository;
@@ -15,11 +17,13 @@ public class CustomerServiceImpl implements CustomerService {
     private final RestTemplate restTemplate;
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
+    private final NotificationClient notificationClient;
 
-    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository, FraudClient fraudClient) {
+    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository, FraudClient fraudClient, NotificationClient notificationClient) {
         this.restTemplate = restTemplate;
         this.customerRepository = customerRepository;
         this.fraudClient = fraudClient;
+        this.notificationClient = notificationClient;
     }
 
 
@@ -30,7 +34,13 @@ public class CustomerServiceImpl implements CustomerService {
                 .lastName(request.lastName())
                 .email(request.email())
                 .build();
-        //todo: check if email not taken
+
+        notificationClient.sendNotification(new NotificationRequest(
+                customer.getId(),
+                customer.getEmail(),
+                customer.getLastName(),
+                String.format("Hi %s, welcome to my Microservice...", customer.getFirstName())));
+        //todo: make it async. i.e add to queue
         customerRepository.saveAndFlush(customer);
         //todo: check if fraudster
 //        try {
