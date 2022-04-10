@@ -1,6 +1,6 @@
 package com.company.fraud.controller;
 
-import com.company.clients.fraud.FraudCheckResponse;
+import com.company.clients.fraud.fraud.FraudCheckResponse;
 import com.company.fraud.service.FraudCheckService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

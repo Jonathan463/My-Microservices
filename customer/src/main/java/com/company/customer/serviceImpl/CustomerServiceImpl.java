@@ -1,7 +1,7 @@
 package com.company.customer.serviceImpl;
 
-import com.company.clients.fraud.FraudCheckResponse;
-import com.company.clients.fraud.FraudClient;
+import com.company.clients.fraud.fraud.FraudCheckResponse;
+import com.company.clients.fraud.fraud.FraudClient;
 import com.company.customer.model.Customer;
 import com.company.customer.model.CustomerRegistrationRequest;
 import com.company.customer.repository.CustomerRepository;
