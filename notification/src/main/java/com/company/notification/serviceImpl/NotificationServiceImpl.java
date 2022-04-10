@@ -20,7 +20,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(Notification.builder()
                 .toCustomerId(notificationRequest.toCustomerId())
                 .toCustomerEmail(notificationRequest.customerEmail())
-                .sender("Amigoscode")
+                .sender("Jonathan")
                 .message(notificationRequest.message())
                 .sentAt(LocalDateTime.now())
                 .build()
