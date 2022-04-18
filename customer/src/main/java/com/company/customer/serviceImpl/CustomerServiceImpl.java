@@ -34,14 +34,18 @@ public class CustomerServiceImpl implements CustomerService {
                 .lastName(request.lastName())
                 .email(request.email())
                 .build();
-
-        notificationClient.sendNotification(new NotificationRequest(
-                customer.getId(),
-                customer.getEmail(),
-                customer.getLastName(),
-                String.format("Hi %s, welcome to my Microservice...", customer.getFirstName())));
-        //todo: make it async. i.e add to queue
-        customerRepository.saveAndFlush(customer);
+try {
+    notificationClient.sendNotification(new NotificationRequest(
+            customer.getId(),
+            customer.getEmail(),
+            customer.getLastName(),
+            String.format("Hi %s, welcome to my Microservice...", customer.getFirstName())));
+    //todo: make it async. i.e add to queue
+    customerRepository.saveAndFlush(customer);
+}
+catch (Exception e){
+    System.err.println(e);
+}
         //todo: check if fraudster
 //        try {
 //            FraudCheckResponse fraudCheckResponse = restTemplate.getForObject("http://FRAUD/api/v1/fraud-check/{customerId}", FraudCheckResponse.class, customer.getId());
