@@ -1,5 +1,6 @@
 package com.company.customer.serviceImpl;
 
+import com.company.amqp.RabbitMQMessageProducer;
 import com.company.clients.fraud.fraud.FraudCheckResponse;
 import com.company.clients.fraud.fraud.FraudClient;
 import com.company.clients.fraud.notification.NotificationClient;
@@ -17,13 +18,13 @@ public class CustomerServiceImpl implements CustomerService {
     private final RestTemplate restTemplate;
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
-    private final NotificationClient notificationClient;
+    private final RabbitMQMessageProducer rabbitMQMessageProducer;
 
-    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository, FraudClient fraudClient, NotificationClient notificationClient) {
+    public CustomerServiceImpl(RestTemplate restTemplate, CustomerRepository customerRepository, FraudClient fraudClient, NotificationClient notificationClient, RabbitMQMessageProducer rabbitMQMessageProducer) {
         this.restTemplate = restTemplate;
         this.customerRepository = customerRepository;
         this.fraudClient = fraudClient;
-        this.notificationClient = notificationClient;
+        this.rabbitMQMessageProducer = rabbitMQMessageProducer;
     }
 
 
@@ -35,12 +36,19 @@ public class CustomerServiceImpl implements CustomerService {
                 .email(request.email())
                 .build();
 try {
-    notificationClient.sendNotification(new NotificationRequest(
+
+            NotificationRequest notificationRequest = new NotificationRequest(
             customer.getId(),
             customer.getEmail(),
             customer.getLastName(),
-            String.format("Hi %s, welcome to my Microservice...", customer.getFirstName())));
-    //todo: make it async. i.e add to queue
+            String.format("Hi %s, welcome to my Microservice...", customer.getFirstName()));
+
+            rabbitMQMessageProducer.publish(
+                    notificationRequest,
+                    "internal.exchange",
+                    "internal.notification.routing-key"
+            );
+    //notificationClient.sendNotification(notificationRequest);
     customerRepository.saveAndFlush(customer);
 }
 catch (Exception e){
